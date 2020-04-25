@@ -24,9 +24,9 @@ jobs:
             install_deps_command: |
                                   # choco exit with code 1 after successful install ¯\_(ツ)_/¯ 
                                   choco install -y --force cmake make | exit 0
-                                  wget -nc -O https://github.com/glfw/glfw/releases/download/3.3.2/glfw-3.3.2.bin.WIN64.zip &&
-                                  7z x glfw-3.3.2.bin.WIN64.zip -o glfw &&
-                                  cd glfw
+                                  curl -sLO https://github.com/glfw/glfw/releases/download/3.3.2/glfw-3.3.2.bin.WIN64.zip
+                                  unzip -qq glfw-3.3.2.bin.WIN64.zip -d $GITHUB_WORKSPACE/glfw
+                                  cd $GITHUB_WORKSPACE/glfw
                                   ls -al
             make_command: make VERBOSE=1
     steps:
