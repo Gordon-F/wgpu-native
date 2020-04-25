@@ -46,11 +46,11 @@ jobs:
           - os: windows-2019
             name: Windows Stable
             channel: stable
-            build_command: rustup default stable-msvc; cargo clippy
+            build_command: rustup default stable-msvc; cargo check
           - os: windows-2019
             name: Windows Nightly
             channel: nightly
-            build_command: rustup default nightly-msvc; cargo clippy
+            build_command: rustup default nightly-msvc; cargo check
     steps:
     - uses: actions/checkout@v2
     - if: matrix.channel == 'nightly'
@@ -78,7 +78,7 @@ jobs:
     - if: contains(matrix.os, 'windows')
       name: Install glfw3
       run: |
-        choco install cmake make
+        choco install -y cmake make
         wget -nc -O https://github.com/glfw/glfw/releases/download/3.3.2/glfw-3.3.2.bin.WIN64.zip &&
         7z x glfw-3.3.2.bin.WIN64.zip -o glfw &&
         cd glfw
