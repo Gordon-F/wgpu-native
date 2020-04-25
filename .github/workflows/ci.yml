@@ -23,34 +23,34 @@ jobs:
           Windows Nightly,
         ]
         include:
-          - os: macos-10.15
-            name: iOS Stable
-            channel: stable
-            build_command: rustup target add aarch64-apple-ios; cargo clippy --target aarch64-apple-ios
-          - os: macos-10.15
-            name: MacOS Stable
-            channel: stable
-            build_command: cargo clippy
-          - os: macos-10.15
-            name: MacOS Nightly
-            channel: nightly
-            build_command: cargo check
-          - os: ubuntu-18.04
-            name: Ubuntu Stable
-            channel: stable
-            build_command: cargo clippy
+          #- os: macos-10.15
+          #  name: iOS Stable
+          #  channel: stable
+          #  build_command: rustup target add aarch64-apple-ios; cargo clippy --target aarch64-apple-ios
+          #- os: macos-10.15
+          #  name: MacOS Stable
+          #  channel: stable
+          #  build_command: cargo clippy
+          #- os: macos-10.15
+          #  name: MacOS Nightly
+          #  channel: nightly
+          #  build_command: cargo check
+          #- os: ubuntu-18.04
+          #  name: Ubuntu Stable
+          #  channel: stable
+          #  build_command: cargo clippy
           - os: ubuntu-18.04
             name: Ubuntu Nightly
             channel: nightly
             build_command: cargo check
-          - os: windows-2019
-            name: Windows Stable
-            channel: stable
-            build_command: rustup default stable-msvc; cargo clippy
-          - os: windows-2019
-            name: Windows Nightly
-            channel: nightly
-            build_command: rustup default nightly-msvc; cargo clippy
+          #- os: windows-2019
+          #  name: Windows Stable
+          #  channel: stable
+          #  build_command: rustup default stable-msvc; cargo clippy
+          #- os: windows-2019
+          #  name: Windows Nightly
+          #  channel: nightly
+          #  build_command: rustup default nightly-msvc; cargo clippy
     steps:
     - uses: actions/checkout@v2
     - if: matrix.channel == 'nightly'
@@ -63,9 +63,9 @@ jobs:
       run: rustup component add clippy
     - if: contains(matrix.os, 'ubuntu')
       run: |
-        wget http://security.ubuntu.com/ubuntu/pool/universe/g/glfw3/libglfw3_3.3.2-1_amd64.deb
-        sudo apt install libglfw3_3.3.2-1_amd64.deb
-        rm -f libglfw3_3.3.2-1_amd64.deb
+        curl -o . http://security.ubuntu.com/ubuntu/pool/universe/g/glfw3/libglfw3_3.3.2-1_amd64.deb
+        sudo apt install ./libglfw3_3.3.2-1_amd64.deb
+        rm -f ./libglfw3_3.3.2-1_amd64.deb
     - if: contains(matrix.os, 'macos')
       run: brew install cmake glfw3
     - name: cargo test
