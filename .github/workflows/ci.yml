@@ -45,7 +45,8 @@ jobs:
       run: brew install cmake glfw3
     - name: cargo test
       run: cargo test
-    - name: cargo check
+    - if: contains(matrix.build_command, 'clippy')
+      name: cargo clippy
       run: ${{ matrix.build_command }}
     - name: MacOS vulkan-portability
       if: contains(matrix.os, 'macos')
