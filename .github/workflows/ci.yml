@@ -38,10 +38,12 @@ jobs:
       run: rustup component add clippy
     - if: contains(matrix.os, 'ubuntu')
       run: |
-        curl -o ./libglfw3-dev_3.3.2-1_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/g/glfw3/libglfw3-dev_3.3.2-1_amd64.deb
-        curl -o ./libglfw3_3.3.2-1_amd64 http://security.ubuntu.com/ubuntu/pool/universe/g/glfw3/libglfw3_3.3.2-1_amd64.deb
-        sudo apt install -f -y ./libglfw3-dev_3.3.2-1_amd64.deb ./libglfw3_3.3.2-1_amd64.deb
-        rm -f ./libglfw3-dev_3.3.2-1_amd64.deb ./libglfw3_3.3.2-1_amd64.deb
+        GLFW_DIR="./libglfw3"
+        mkdir $GLFW_DIR
+        curl -o $GLFW_DIR/libglfw3-dev_3.3.2-1_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/g/glfw3/libglfw3-dev_3.3.2-1_amd64.deb
+        curl -o $GLFW_DIR/libglfw3_3.3.2-1_amd64 http://security.ubuntu.com/ubuntu/pool/universe/g/glfw3/libglfw3_3.3.2-1_amd64.deb
+        sudo apt install -f -y $GLFW_DIR/*.deb
+        rm -rf $GLFW_DIR
     - if: contains(matrix.os, 'macos')
       run: brew install cmake glfw3
     - name: cargo test
