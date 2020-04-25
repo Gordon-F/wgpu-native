@@ -14,23 +14,18 @@ jobs:
       fail-fast: false
       matrix:
         name: [
-          iOS Stable,
-          MacOS Stable,
-          MacOS Nightly,
           Ubuntu Stable,
-          Ubuntu Nightly,
-          Windows Stable,
-          Windows Nightly,
+          Ubuntu Nightly
         ]
         include:
-        - os: ubuntu-18.04
-          name: Ubuntu Stable
-          channel: stable
-          build_command: cargo clippy
-        - os: ubuntu-18.04
-          name: Ubuntu Nightly
-          channel: nightly
-          build_command: cargo check
+          - os: ubuntu-18.04
+            name: Ubuntu Stable
+            channel: stable
+            build_command: cargo clippy
+          - os: ubuntu-18.04
+            name: Ubuntu Nightly
+            channel: nightly
+            build_command: cargo check
     steps:
     - uses: actions/checkout@v2
     - if: matrix.channel == 'nightly'
