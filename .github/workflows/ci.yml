@@ -38,7 +38,7 @@ jobs:
       run: rustup component add clippy
     - if: contains(matrix.os, 'ubuntu')
       run: |
-        curl -o . http://security.ubuntu.com/ubuntu/pool/universe/g/glfw3/libglfw3_3.3.2-1_amd64.deb
+        curl -o ./libglfw3_3.3.2-1_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/g/glfw3/libglfw3_3.3.2-1_amd64.deb
         sudo apt install ./libglfw3_3.3.2-1_amd64.deb
         rm -f ./libglfw3_3.3.2-1_amd64.deb
     - if: contains(matrix.os, 'macos')
