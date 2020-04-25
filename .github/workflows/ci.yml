@@ -88,6 +88,7 @@ jobs:
       with:
         toolchain: nightly
         override: true
+        components: clippy
     - if: contains(matrix.build_command, 'clippy')
       run: rustup component add clippy
     - name: Install dependencies
