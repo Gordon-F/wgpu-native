@@ -28,34 +28,52 @@ jobs:
             name: Android Stable
             channel: stable
             build_command: rustup target add aarch64-linux-android; cargo clippy --target aarch64-linux-android
+            make_command: make package
           - os: macos-10.15
             name: iOS Stable
             channel: stable
             build_command: rustup target add aarch64-apple-ios; cargo clippy --target aarch64-apple-ios
+            make_command: make package
           - os: macos-10.15
             name: MacOS Stable
             channel: stable
             build_command: cargo clippy
+            make_command: make package
           - os: macos-10.15
             name: MacOS Nightly
             channel: nightly
             build_command: cargo check
+            install_deps_command: brew install cmake glfw3
+            make_command: make VERBOSE=1
           - os: ubuntu-18.04
             name: Ubuntu Stable
             channel: stable
             build_command: cargo clippy
+            make_command: make package
           - os: ubuntu-18.04
             name: Ubuntu Nightly
             channel: nightly
             build_command: cargo check
+            install_deps_command: |
+                                  sudo apt install -f -y cmake
+                                  GLFW_DIR="./libglfw3"
+                                  mkdir $GLFW_DIR
+                                  curl -o $GLFW_DIR/libglfw3-dev_3.3.2-1_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/g/glfw3/libglfw3-dev_3.3.2-1_amd64.deb
+                                  curl -o $GLFW_DIR/libglfw3_3.3.2-1_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/g/glfw3/libglfw3_3.3.2-1_amd64.deb
+                                  sudo apt install -f -y $GLFW_DIR/libglfw3_3.3.2-1_amd64.deb
+                                  sudo apt install -f -y $GLFW_DIR/libglfw3-dev_3.3.2-1_amd64.deb
+                                  rm -rf $GLFW_DIR
+            make_command: make VERBOSE=1
           - os: windows-2019
             name: Windows Stable
             channel: stable
             build_command: rustup default stable-msvc; cargo check
+            make_command: make package
           - os: windows-2019
             name: Windows Nightly
             channel: nightly
             build_command: rustup default nightly-msvc; cargo check
+            make_command: make VERBOSE=1
     steps:
     - uses: actions/checkout@v2
     - if: matrix.channel == 'nightly'
@@ -66,28 +84,8 @@ jobs:
         override: true
     - if: contains(matrix.build_command, 'clippy')
       run: rustup component add clippy
-    - if: contains(matrix.os, 'ubuntu')
-      name: Install glfw3 (Ubuntu)
-      run: |
-        sudo apt install -f -y cmake
-        GLFW_DIR="./libglfw3"
-        mkdir $GLFW_DIR
-        curl -o $GLFW_DIR/libglfw3-dev_3.3.2-1_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/g/glfw3/libglfw3-dev_3.3.2-1_amd64.deb
-        curl -o $GLFW_DIR/libglfw3_3.3.2-1_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/g/glfw3/libglfw3_3.3.2-1_amd64.deb
-        sudo apt install -f -y $GLFW_DIR/libglfw3_3.3.2-1_amd64.deb
-        sudo apt install -f -y $GLFW_DIR/libglfw3-dev_3.3.2-1_amd64.deb
-        rm -rf $GLFW_DIR
-    - if: contains(matrix.os, 'macos')
-      name: Install glfw3 (MacOS)
-      run: brew install cmake glfw3
-    - if: contains(matrix.os, 'windows')
-      name: Install glfw3 (Windows)
-      run: |
-        choco install -y cmake make
-        wget -nc -O https://github.com/glfw/glfw/releases/download/3.3.2/glfw-3.3.2.bin.WIN64.zip &&
-        7z x glfw-3.3.2.bin.WIN64.zip -o glfw &&
-        cd glfw
-        ls -al
+    - name: Install dependencies
+      run: ${{ matrix.install_deps_command }}
     - name: cargo test
       run: cargo test
     - if: contains(matrix.build_command, 'clippy')
@@ -98,7 +96,4 @@ jobs:
       run: ${{ matrix.build_command }} --features vulkan-portability
     - if: matrix.channel == 'nightly'
       run: cargo +nightly install cbindgen
-    - if: matrix.channel == 'nightly'
-      run: make VERBOSE=1
-    - if: matrix.channel == 'stable'
-      run: make package
+    - run: ${{ matrix.make_command }}
