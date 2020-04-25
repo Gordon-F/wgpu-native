@@ -35,11 +35,11 @@ jobs:
           #  name: MacOS Nightly
           #  channel: nightly
           #  build_command: cargo check
-          #- os: ubuntu-18.04
-          #  name: Ubuntu Stable
-          #  channel: stable
-          #  build_command: cargo clippy
-          - os: ubuntu-18.04
+        - os: ubuntu-18.04
+            name: Ubuntu Stable
+            channel: stable
+            build_command: cargo clippy
+        - os: ubuntu-18.04
             name: Ubuntu Nightly
             channel: nightly
             build_command: cargo check
