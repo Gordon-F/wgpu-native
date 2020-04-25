@@ -41,6 +41,7 @@ jobs:
       run: rustup component add clippy
     - name: Install dependencies
       run: ${{ matrix.install_deps_command }}
+      shell: bash
     - name: cargo test
       run: cargo test
     - if: contains(matrix.build_command, 'clippy')
