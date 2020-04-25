@@ -89,7 +89,7 @@ jobs:
       name: cargo clippy
       run: ${{ matrix.build_command }}
     - name: MacOS vulkan-portability
-      if: contains(matrix.os, 'macos')
+      if: contains(matrix.os, 'macos') && !contains(matrix.build_command, 'ios')
       run: ${{ matrix.build_command }} --features vulkan-portability
     - if: matrix.channel == 'nightly'
       run: cargo +nightly install cbindgen
