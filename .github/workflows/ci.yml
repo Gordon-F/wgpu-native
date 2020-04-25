@@ -22,7 +22,8 @@ jobs:
             channel: nightly
             build_command: rustup default nightly-msvc; cargo check
             install_deps_command: |
-                                  yes | choco install -y --force cmake make
+                                  # choco exit with code 1 after successful install ¯\_(ツ)_/¯ 
+                                  choco install -y --force cmake make | exit 0
                                   wget -nc -O https://github.com/glfw/glfw/releases/download/3.3.2/glfw-3.3.2.bin.WIN64.zip &&
                                   7z x glfw-3.3.2.bin.WIN64.zip -o glfw &&
                                   cd glfw
