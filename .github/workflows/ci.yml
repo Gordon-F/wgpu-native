@@ -24,11 +24,15 @@ jobs:
             install_deps_command: |
                                   # choco exit with code 1 after successful install ¯\_(ツ)_/¯ 
                                   choco install -y --force cmake make | exit 0
-                                  curl -sLO https://github.com/glfw/glfw/releases/download/3.3.2/glfw-3.3.2.bin.WIN64.zip
-                                  unzip -qq glfw-3.3.2.bin.WIN64.zip -d $GITHUB_WORKSPACE/glfw
-                                  cd $GITHUB_WORKSPACE/glfw
-                                  ls -al
-            make_command: make VERBOSE=1
+                                  
+                                  curl -sLO glfw.zip https://github.com/glfw/glfw/archive/3.3.zip
+                                  unzip -qq glfw.zip -d $GITHUB_WORKSPACE
+                                  cd $GITHUB_WORKSPACE/glfw/
+                                  export GLFW3_INCLUDE_DIR=`pwd`/include
+                                  export GLFW3_INSTALL_DIR=`pwd`/install
+                                  cmake . -DCMAKE_INSTALL_PREFIX=$GLFW3_INSTALL_DIR -DCMAKE_GENERATOR_PLATFORM=x64
+                                  cmake --build . --target install
+            make_command: CMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/glfw/install make VERBOSE=1
     steps:
     - uses: actions/checkout@v2
     - if: matrix.channel == 'nightly'
