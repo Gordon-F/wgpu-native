@@ -25,8 +25,8 @@ jobs:
                                   # choco exit with code 1 after successful install ¯\_(ツ)_/¯ 
                                   choco install -y --force cmake make | exit 0
                                   
-                                  curl -sLO glfw.zip https://github.com/glfw/glfw/archive/3.3.zip
-                                  unzip -qq glfw.zip -d $GITHUB_WORKSPACE
+                                  curl -L -o glfw.zip https://github.com/glfw/glfw/archive/3.3.zip
+                                  unzip glfw.zip -d $GITHUB_WORKSPACE
                                   cd $GITHUB_WORKSPACE/glfw/
                                   export GLFW3_INCLUDE_DIR=`pwd`/include
                                   export GLFW3_INSTALL_DIR=`pwd`/install
