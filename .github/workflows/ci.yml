@@ -21,7 +21,7 @@ jobs:
           Ubuntu Stable,
           Ubuntu Nightly,
           Windows Stable,
-          Windows Nightly,
+          Windows Nightly
         ]
         include:
           - os: macos-10.15
@@ -79,7 +79,18 @@ jobs:
             name: Windows Nightly
             channel: nightly
             build_command: rustup default nightly-msvc; cargo check
-            make_command: make VERBOSE=1
+            install_deps_command: |
+                                  # choco exit with code 1 after successful install ¯\_(ツ)_/¯
+                                  choco install -y --force cmake make | exit 0
+
+                                  curl -sL -o glfw.zip https://github.com/glfw/glfw/archive/3.3.zip
+                                  unzip -qq glfw.zip -d $GITHUB_WORKSPACE
+                                  cd $GITHUB_WORKSPACE/glfw-3.3/
+                                  export GLFW3_INCLUDE_DIR=`pwd`/include
+                                  export GLFW3_INSTALL_DIR=`pwd`/install
+                                  cmake . -DCMAKE_INSTALL_PREFIX=$GLFW3_INSTALL_DIR -DCMAKE_GENERATOR_PLATFORM=x64
+                                  cmake --build . --target install
+            make_command: CMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/glfw-3.3/install make VERBOSE=1
     steps:
     - uses: actions/checkout@v2
     - if: matrix.channel == 'nightly'
@@ -92,6 +103,7 @@ jobs:
       run: rustup component add clippy
     - name: Install dependencies
       run: ${{ matrix.install_deps_command }}
+      shell: bash
     - name: cargo test
       run: cargo test
     - if: contains(matrix.build_command, 'clippy')
@@ -103,3 +115,4 @@ jobs:
     - if: matrix.channel == 'nightly'
       run: cargo +nightly install cbindgen
     - run: ${{ matrix.make_command }}
+      shell: bash
