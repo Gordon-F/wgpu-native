@@ -101,9 +101,10 @@ jobs:
         with:
           name: artifact
           path: dist/wgpu-*.zip
-          
+
   publish:
     needs: [build]
+    name: Publish release artifacts
     runs-on: ubuntu-18.04
     steps:
       - name: Download Artifacts
@@ -117,24 +118,28 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: test
-          release_name: test
+          tag_name: test-${{ GITHUB_RUN_ID }}
+          release_name: test-${{ GITHUB_RUN_ID }}
           body: |
             Changes in this Release
             - First Change
             - Second Change
           draft: false
           prerelease: false
+      - name: Unzip Artifacts
+        working-directory: $GITHUB_WORKSPACE/wgpu-release/
+        run: |
+            unzip -qq artifact.zip -d .
+            rm -f artifact.zip
       - name: Upload Release Asset
-        id: upload-release-asset 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: upload-release-asset
+        working-directory: $GITHUB_WORKSPACE/wgpu-release/
+        # Move back to official action after fix https://github.com/actions/upload-release-asset/issues/4
+        uses: csexton/release-asset-action@v2
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} 
-          asset_path: $GITHUB_WORKSPACE/wgpu-release/artifact.zip
-          asset_name: artifact.zip
-          asset_content_type: application/zip
+          pattern: "*.zip"
+          release-url: ${{ steps.create_release.outputs.upload_url }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   ios-build:
     name: iOS Stable
