@@ -14,8 +14,6 @@ jobs:
       fail-fast: false
       matrix:
         name: [
-          Android Stable,
-          iOS Stable,
           MacOS Stable,
           MacOS Nightly,
           Ubuntu Stable,
@@ -24,22 +22,6 @@ jobs:
           Windows Nightly
         ]
         include:
-          - os: macos-10.15
-            name: Android Stable
-            channel: stable
-            build_command: rustup target add aarch64-linux-android; cargo clippy --target aarch64-linux-android
-            install_deps_command: |
-                                  curl -LO https://dl.google.com/android/repository/android-ndk-r21b-linux-x86_64.zip
-                                  unzip -qq android-ndk-r21b-linux-x86_64.zip -d $GITHUB_WORKSPACE
-                                  export NDK_HOME="$GITHUB_WORKSPACE/android-ndk-r20"
-                                  export CC="$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/clang"
-                                  export AR="$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
-            make_command: make package
-          - os: macos-10.15
-            name: iOS Stable
-            channel: stable
-            build_command: rustup target add aarch64-apple-ios; cargo clippy --target aarch64-apple-ios
-            make_command: make package
           - os: macos-10.15
             name: MacOS Stable
             channel: stable
@@ -92,27 +74,58 @@ jobs:
                                   cmake --build . --target install
             make_command: CMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/glfw-3.3/install make VERBOSE=1
     steps:
-    - uses: actions/checkout@v2
-    - if: matrix.channel == 'nightly'
-      name: Install latest nightly
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: nightly
-        override: true
-    - if: contains(matrix.build_command, 'clippy')
-      run: rustup component add clippy
-    - name: Install dependencies
-      run: ${{ matrix.install_deps_command }}
-      shell: bash
-    - name: cargo test
-      run: cargo test
-    - if: contains(matrix.build_command, 'clippy')
-      name: cargo clippy
-      run: ${{ matrix.build_command }}
-    - name: MacOS vulkan-portability
-      if: contains(matrix.os, 'macos') && !contains(matrix.build_command, 'ios')
-      run: ${{ matrix.build_command }} --features vulkan-portability
-    - if: matrix.channel == 'nightly'
-      run: cargo +nightly install cbindgen
-    - run: ${{ matrix.make_command }}
-      shell: bash
+      - uses: actions/checkout@v2
+      - if: matrix.channel == 'nightly'
+        name: Install latest nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+      - if: contains(matrix.build_command, 'clippy')
+        run: rustup component add clippy
+      - name: Install dependencies
+        run: ${{ matrix.install_deps_command }}
+        shell: bash
+      - name: cargo test
+        run: cargo test
+      - if: contains(matrix.build_command, 'clippy')
+        name: cargo clippy
+        run: ${{ matrix.build_command }}
+      - if: matrix.channel == 'nightly'
+        run: cargo +nightly install cbindgen
+      - run: ${{ matrix.make_command }}
+        shell: bash
+  ios-build:
+    name: iOS Stable
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+      - run: rustup component add clippy
+      - run: rustup target add aarch64-apple-ios
+      - run: cargo clippy --target aarch64-apple-ios
+  android-build:
+    name: Android Stable
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [aarch64-linux-android, armv7-linux-androideabi]
+    steps:
+      - uses: actions/checkout@v2
+      - run: rustup component add clippy
+      - name: Install dependencies
+        run: |
+          curl -LO https://dl.google.com/android/repository/android-ndk-r21b-linux-x86_64.zip
+          unzip -qq android-ndk-r21b-linux-x86_64.zip -d $GITHUB_WORKSPACE
+          export NDK_HOME_BIN=$GITHUB_WORKSPACE/android-ndk-r21b/toolchains/llvm/prebuilt/linux-x86_64/bin
+          ln -s $NDK_HOME_BIN/aarch64-linux-android21-clang $NDK_HOME_BIN/aarch64-linux-android-clang
+          ln -s $NDK_HOME_BIN/armv7a-linux-androideabi21-clang $NDK_HOME_BIN/armv7a-linux-androideabi-clang
+          echo "::add-path::$NDK_HOME_BIN"
+      - run: rustup target add ${{ matrix.target }}
+      - run: cargo clippy --target ${{ matrix.target }}
+  macos-vulkan-portability:
+    name: MacOS Stable (Vulkan)
+    runs-on: macos-10.15
+    steps:
+      - run: rustup component add clippy
+      - run: cargo clippy --features vulkan-portability
