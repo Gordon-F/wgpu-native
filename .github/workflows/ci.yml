@@ -2,6 +2,8 @@ name: CI
 
 on:
   push:
+    tags:
+      - 'v*'
     branches-ignore: [ staging.tmp ]
   pull_request:
     branches-ignore: [ staging.tmp ]
@@ -95,6 +97,18 @@ jobs:
         run: cargo +nightly install cbindgen
       - run: ${{ matrix.make_command }}
         shell: bash
+      - if: github.event.ref_type == 'tag'
+        name: Create Release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body:
+          draft: false
+          prerelease: false
+
   ios-build:
     name: iOS Stable
     runs-on: macos-10.15
@@ -103,6 +117,7 @@ jobs:
       - run: rustup component add clippy
       - run: rustup target add aarch64-apple-ios
       - run: cargo clippy --target aarch64-apple-ios
+
   android-build:
     name: Android Stable
     runs-on: ubuntu-18.04
@@ -123,9 +138,11 @@ jobs:
           echo "::add-path::$NDK_HOME_BIN"
       - run: rustup target add ${{ matrix.target }}
       - run: cargo clippy --target ${{ matrix.target }}
+
   macos-vulkan-portability:
     name: MacOS Stable (Vulkan)
     runs-on: macos-10.15
     steps:
+      - uses: actions/checkout@v2
       - run: rustup component add clippy
       - run: cargo clippy --features vulkan-portability
