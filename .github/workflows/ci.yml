@@ -45,14 +45,14 @@ jobs:
             channel: nightly
             build_command: cargo check
             install_deps_command: |
-                                  sudo apt install -f -y cmake
-                                  GLFW_DIR="$GITHUB_WORKSPACE/libglfw3"
-                                  mkdir $GLFW_DIR
-                                  curl -o $GLFW_DIR/libglfw3-dev_3.3.2-1_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/g/glfw3/libglfw3-dev_3.3.2-1_amd64.deb
-                                  curl -o $GLFW_DIR/libglfw3_3.3.2-1_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/g/glfw3/libglfw3_3.3.2-1_amd64.deb
-                                  sudo apt install -f -y $GLFW_DIR/libglfw3_3.3.2-1_amd64.deb
-                                  sudo apt install -f -y $GLFW_DIR/libglfw3-dev_3.3.2-1_amd64.deb
-                                  rm -rf $GLFW_DIR
+                                sudo apt install -f -y cmake
+                                GLFW_DIR="$GITHUB_WORKSPACE/libglfw3"
+                                mkdir $GLFW_DIR
+                                curl -o $GLFW_DIR/libglfw3-dev_3.3.2-1_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/g/glfw3/libglfw3-dev_3.3.2-1_amd64.deb
+                                curl -o $GLFW_DIR/libglfw3_3.3.2-1_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/g/glfw3/libglfw3_3.3.2-1_amd64.deb
+                                sudo apt install -f -y $GLFW_DIR/libglfw3_3.3.2-1_amd64.deb
+                                sudo apt install -f -y $GLFW_DIR/libglfw3-dev_3.3.2-1_amd64.deb
+                                rm -rf $GLFW_DIR
             make_command: make VERBOSE=1
           - os: windows-2019
             name: Windows Stable
@@ -64,16 +64,15 @@ jobs:
             channel: nightly
             build_command: rustup default nightly-msvc; cargo check
             install_deps_command: |
-                                  # choco exit with code 1 after successful install ¯\_(ツ)_/¯
-                                  choco install -y --force cmake make | exit 0
-
-                                  curl -sL -o glfw.zip https://github.com/glfw/glfw/archive/3.3.zip
-                                  unzip -qq glfw.zip -d $GITHUB_WORKSPACE
-                                  cd $GITHUB_WORKSPACE/glfw-3.3/
-                                  export GLFW3_INCLUDE_DIR=`pwd`/include
-                                  export GLFW3_INSTALL_DIR=`pwd`/install
-                                  cmake . -DCMAKE_INSTALL_PREFIX=$GLFW3_INSTALL_DIR -DCMAKE_GENERATOR_PLATFORM=x64
-                                  cmake --build . --target install
+                                # choco exit with code 1 after successful install ¯\_(ツ)_/¯
+                                choco install -y --force cmake make | exit 0
+                                curl -sL -o glfw.zip https://github.com/glfw/glfw/archive/3.3.zip
+                                unzip -qq glfw.zip -d $GITHUB_WORKSPACE
+                                cd $GITHUB_WORKSPACE/glfw-3.3/
+                                export GLFW3_INCLUDE_DIR=`pwd`/include
+                                export GLFW3_INSTALL_DIR=`pwd`/install
+                                cmake . -DCMAKE_INSTALL_PREFIX=$GLFW3_INSTALL_DIR -DCMAKE_GENERATOR_PLATFORM=x64
+                                cmake --build . --target install
             make_command: CMAKE_PREFIX_PATH=$GITHUB_WORKSPACE/glfw-3.3/install make VERBOSE=1
     steps:
       - uses: actions/checkout@v2
@@ -97,17 +96,11 @@ jobs:
         run: cargo +nightly install cbindgen
       - run: ${{ matrix.make_command }}
         shell: bash
-      - if: github.event.ref_type == 'tag'
-        name: Create Release
-        uses: actions/create-release@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body:
-          draft: false
-          prerelease: false
+      - if: contains(github.ref, 'tags/v')
+        uses: actions/upload-artifact@v1
+          with:
+            name: wgpu.zip
+            path: dist/wgpu-*.zip
 
   ios-build:
     name: iOS Stable
