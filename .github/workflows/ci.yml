@@ -24,11 +24,9 @@ jobs:
             install_deps_command: |
                                   curl -LO https://dl.google.com/android/repository/android-ndk-r21b-linux-x86_64.zip
                                   unzip -qq android-ndk-r21b-linux-x86_64.zip -d $GITHUB_WORKSPACE
-            make_command: |
-                          NDK_HOME="$GITHUB_WORKSPACE/android-ndk-r21b"
-                          CC="$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/clang"
-                          AR="$NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
-                          make package
+                                  export NDK_HOME_BIN="$GITHUB_WORKSPACE/android-ndk-r21b/toolchains/llvm/prebuilt/linux-x86_64/bin"
+                                  ln -s ${NDK_HOME_BIN}/aarch64-linux-android21-clang ${NDK_HOME_BIN}/aarch64-linux-android-clang
+            make_command: PATH=$PATH:GITHUB_WORKSPACE/android-ndk-r21b/toolchains/llvm/prebuilt/linux-x86_64/bin make package
     steps:
     - uses: actions/checkout@v2
     - if: matrix.channel == 'nightly'
