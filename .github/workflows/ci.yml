@@ -118,8 +118,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: test-${{ GITHUB_RUN_ID }}
-          release_name: test-${{ GITHUB_RUN_ID }}
+          tag_name: test-${{ github.run_id }}
+          release_name: test-${{ github.run_id }}
           body: |
             Changes in this Release
             - First Change
