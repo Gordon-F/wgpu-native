@@ -133,11 +133,10 @@ jobs:
             rm -f artifact.zip
       - name: Upload Release Asset
         id: upload-release-asset
-        working-directory: $GITHUB_WORKSPACE/wgpu-release/
         # Move back to official action after fix https://github.com/actions/upload-release-asset/issues/4
         uses: csexton/release-asset-action@v2
         with:
-          pattern: "*.zip"
+          pattern: "$GITHUB_WORKSPACE/wgpu-release/*.zip"
           release-url: ${{ steps.create_release.outputs.upload_url }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
