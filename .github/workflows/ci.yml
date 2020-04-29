@@ -96,7 +96,7 @@ jobs:
         run: cargo +nightly install cbindgen
       - run: ${{ matrix.make_command }}
         shell: bash
-      - if: contains(github.ref, 'tags/v')
+      - if: matrix.channel == 'stable'
         name: Upload a Build Artifact
         uses: actions/upload-artifact@v2
           with:
