@@ -97,9 +97,9 @@ jobs:
       - run: ${{ matrix.make_command }}
         shell: bash
       - if: contains(github.ref, 'tags/v')
-        uses: actions/upload-artifact@v1
+        name: Upload a Build Artifact
+        uses: actions/upload-artifact@v2
           with:
-            name: wgpu.zip
             path: dist/wgpu-*.zip
 
   ios-build:
