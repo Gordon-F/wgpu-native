@@ -57,7 +57,7 @@ jobs:
           - os: windows-2019
             name: Windows Stable
             channel: stable
-            build_command: rustup default stable-msvc; cargo check
+            build_command: rustup default stable-msvc; cargo clippy
             make_command: make package
           - os: windows-2019
             name: Windows Nightly
