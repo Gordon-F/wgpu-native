@@ -96,13 +96,14 @@ jobs:
         run: cargo +nightly install cbindgen
       - run: ${{ matrix.make_command }}
         shell: bash
-      - if: matrix.channel == 'stable'
+      - if: matrix.channel == 'stable' && contains(github.ref, 'tags/v')
         uses: actions/upload-artifact@v2
         with:
           name: artifact
           path: dist/wgpu-*.zip
 
   publish:
+    if: contains(github.ref, 'tags/v')
     needs: [build]
     name: Publish release artifacts
     runs-on: ubuntu-18.04
