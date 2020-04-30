@@ -129,8 +129,10 @@ jobs:
       - name: Unzip Artifacts
         working-directory: $GITHUB_WORKSPACE/wgpu-release/
         run: |
-            unzip -qq artifact.zip -d .
-            rm -f artifact.zip
+          pwd
+          ls -al
+          unzip -qq artifact.zip -d .
+          rm -f artifact.zip
       - name: Upload Release Asset
         id: upload-release-asset
         # Move back to official action after fix https://github.com/actions/upload-release-asset/issues/4
